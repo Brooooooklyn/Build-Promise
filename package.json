@@ -1,0 +1,26 @@
+{
+  "name": "build_promise",
+  "version": "0.0.1",
+  "description": "Build your own promise",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha",
+    "nodemon": "nodemon index.js",
+    "watch": "tsc ./src/app.ts -m commonjs --outDir lib --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers -w",
+    "build": "tsc ./src/app.ts -m commonjs --outDir lib --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
+    "typings": "typings install"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "nodemon": "^1.10.0",
+    "ts-node": "^1.2.1",
+    "typescript": "^1.8.10",
+    "typings": "^1.3.2"
+  },
+  "dependencies": {
+    "tslib": "^1.0.0"
+  }
+}
