@@ -222,3 +222,21 @@ a = {
 // 合法
 a = new Company()
 ```
+
+## 开始项目
+
+```
+npm i && npm run typings
+```
+
+开发时:
+
+```
+npm run watch
+```
+
+另开一个命令行，运行信息将在这个窗口中打印
+
+```
+npm run nodemon
+```
