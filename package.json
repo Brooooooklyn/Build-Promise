@@ -5,9 +5,9 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha",
-    "nodemon": "nodemon index.js",
-    "watch": "tsc ./src/app.ts -m commonjs --outDir lib --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers -w",
+    "watch": "npm run watch-test & ts-node ./tools/watch.ts",
     "build": "tsc ./src/app.ts -m commonjs --outDir lib --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
+    "watch-test": "tsc ./test/index.ts ./typings/index.d.ts -m commonjs --outDir spec-js --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers -w",
     "typings": "typings install"
   },
   "author": "",

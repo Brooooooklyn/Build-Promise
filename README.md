@@ -5,7 +5,7 @@
 TypeScript 语言特性的大多数部分来自于标准的 EMCAScript，这意味着它和原生的 ES2015 / ES2016 是非常相似的。不同的地方仅仅是编写代码时(Design time)的类型系统，在运行时(Run time) TypeScript 编译器会将类型系统从代码中全部擦除，所以得到的代码几乎就是手写的 ES 代码。
 
 考虑选取 TypeScript 作为本教程的开发语言有以下几个考虑：
- 
+
 1. 规范中的描述有很多类似
 ```
 void resolve(
@@ -78,7 +78,7 @@ foo = (bar: string, extra: number) => {
 // 合法
 foo = (bar: string) => {
   return parseInt(bar)
-} 
+}
 ```
 
 在定义函数时，有时候函数的参数也是函数，看起来可能会有点绕:
@@ -223,6 +223,37 @@ a = {
 a = new Company()
 ```
 
+### 范型
+
+在这个例子中我只在一处使用了范型
+范型很好理解, 我们定义一些函数或者类的时候，还不知道它将会处理什么样的数据，所以先由一个占位符代替，在调用函数或者实例化类的时候再根据传入的值去决定它是什么类型。也可以在使用时手动指定。
+
+```ts
+class Company <T> {
+  public subCompany: T
+
+  constructor(subCompany: T) {
+    this.subCompany = subCompany
+  }
+}
+
+Class ITCompany {
+
+}
+// 这里的 company 的类型就是 ITCompany，定义中的范型 T 全部为 ITCompany
+const company = new Company(new ITCompany())
+
+function foo <T> (arg: T): T {
+  return arg
+}
+
+// 参数与返回值类型都为 number
+foo(1)
+
+// 参数与返回值类型都为 string
+foo('2')
+```
+
 ## 开始项目
 
 ```
@@ -235,8 +266,6 @@ npm i && npm run typings
 npm run watch
 ```
 
-另开一个命令行，运行信息将在这个窗口中打印
+修改代码会自动运行单元测试
 
-```
-npm run nodemon
-```
+
