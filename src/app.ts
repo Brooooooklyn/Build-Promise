@@ -6,6 +6,19 @@ import 'tslib'
  */
 
 export class MyPromise <T> {
+
+  public static resolve<U>(val: U): MyPromise<U> {
+    return new MyPromise<U>(resolve => {
+      resolve(val)
+    })
+  }
+
+  public static reject<U>(reason: U): MyPromise<U> {
+    return new MyPromise<U>((resolve, reject) => {
+      reject(reason)
+    })
+  }
+
   /**
    * 0 是 pending
    * 1 是 fulfilled

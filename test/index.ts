@@ -42,4 +42,22 @@ export default describe('Promise A+ spec', () => {
       done()
     })
   })
+
+  it('static resolve should ok', done => {
+    const promise = MyPromise.resolve(1)
+    promise.then(val => {
+      expect(val).to.equal(1)
+      done()
+    })
+  })
+
+  it('static reject should ok', done => {
+    const reason = new Error('your application is unhappy')
+    const promise = MyPromise.reject(reason)
+
+    promise.catch(reason => {
+      expect(reason).to.deep.equal(reason)
+      done()
+    })
+  })
 })

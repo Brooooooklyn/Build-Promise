@@ -2,7 +2,7 @@
   "name": "build_promise",
   "version": "0.0.1",
   "description": "Build your own promise",
-  "main": "lib/index.js",
+  "main": "lib/app.js",
   "scripts": {
     "test": "mocha",
     "watch": "npm run watch-test & ts-node ./tools/watch.ts",
@@ -10,7 +10,7 @@
     "watch-test": "tsc ./test/index.ts ./typings/index.d.ts -m commonjs --outDir spec-js --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers -w",
     "typings": "typings install"
   },
-  "author": "",
+  "author": "lynweklm@gmail.com",
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
