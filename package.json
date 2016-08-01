@@ -4,9 +4,10 @@
   "description": "Build your own promise",
   "main": "lib/app.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha ./spec-js/test/index.js",
     "watch": "npm run watch-test & ts-node ./tools/watch.ts",
     "build": "tsc ./src/app.ts -m commonjs --outDir lib --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
+    "build:test": "tsc ./test/index.ts ./typings/index.d.ts -m commonjs --outDir spec-js --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
     "watch-test": "tsc ./test/index.ts ./typings/index.d.ts -m commonjs --outDir spec-js --sourcemap --sourceRoot src --target ES2015 --diagnostics --pretty --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers -w",
     "typings": "typings install"
   },
