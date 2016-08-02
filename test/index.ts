@@ -5,6 +5,7 @@ const expect = chai.expect
 
 export default describe('Promise A+ spec', () => {
   it('new promise should ok', () => {
+    // tslint:disable-next-line
     const promise = new MyPromise((resolve, reject) => { })
     expect(promise.status).to.equal(0)
   })
