@@ -96,7 +96,6 @@ export class MyPromise <T> {
     }
   }
 
-<<<<<<< 41bf5950dbe3a254e44df618f3410d7147fece91
    catch(onReject: (reason: any) => any): MyPromise<T> {
      let x = onReject(this._rejectReason)
       try {
@@ -106,13 +105,6 @@ export class MyPromise <T> {
       } catch (e) {
         return MyPromise.reject(x)
       }
-=======
-  catch(onReject: (reason: any) => any) {
-    let promise2;
-    return promise2 =  new MyPromise((resolve, reject) => {
-      this.then(null, onReject);
-    })
->>>>>>> catch api return a promise
   }
 
   private _resolve(value: T) {
@@ -130,7 +122,7 @@ export class MyPromise <T> {
         this._rejectReason = reason
         this.status = 2
         for (let i = 0; i < this.onRejectedCallback.length; i++) {
-          this.onRejectedCallback[i](reason);
+          this.onRejectedCallback[i](reason)
         }
       }
   }
