@@ -60,4 +60,26 @@ export default describe('Promise A+ spec', () => {
       done()
     })
   })
+
+  it('then method should return a new Promise', done => {
+    const promise = MyPromise
+      .resolve(1)
+      .then(r => r + 1)
+
+    promise.then(r => {
+      expect(r).to.equal(2)
+      done()
+    })
+  })
+
+  it('catch method should return a new promise', done => {
+    const promise = MyPromise
+      .reject(1)
+
+    promise.then()
+      .catch(reason => {
+        expect(reason).to.equal(1)
+        done()
+      })
+  })
 })

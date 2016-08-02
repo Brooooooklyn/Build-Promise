@@ -44,11 +44,11 @@ export class MyPromise <T> {
     }
   }
 
-  then(onFulfill?: Function, errorHandler?: (e: Error) => any) {
+  then<U>(onFulfill?: Function, errorHandler?: (e: Error) => any): MyPromise<U> {
 
   }
 
-  catch(onReject: (reason: any) => any) {
+  catch(onReject: (reason: any) => any): MyPromise<U> {
 
   }
 
