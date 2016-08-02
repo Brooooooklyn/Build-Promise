@@ -7,7 +7,7 @@ import 'tslib'
 
 export class MyPromise <T> {
 
-  public static resolve<U>(val: U): MyPromise<U> {
+  public static resolve<U>(val?: U): MyPromise<U> {
     return new MyPromise<U>(resolve => {
       resolve(val)
     })
@@ -44,12 +44,44 @@ export class MyPromise <T> {
     }
   }
 
-  then<U>(onFulfill?: Function, errorHandler?: (e: Error) => any): MyPromise<U> {
-
+  then<U>(onFulfill?: (value?: T) => U, errorHandler?: (e: Error) => any): MyPromise<U> {
+    if (this.status === 1) {
+      if (typeof onFulfill === 'function') {
+        try {
+          const result = onFulfill(this._value)
+          return MyPromise.resolve(result)
+        }catch (e) {
+          if (errorHandler) {
+            errorHandler(e)
+          }
+          return MyPromise.reject(e)
+        }
+      } else {
+        return MyPromise.resolve<any>()
+      }
+    } else {
+      if (typeof errorHandler === 'function') {
+        try {
+          errorHandler(this._rejectReason)
+        } catch (e) {
+          return MyPromise.reject(e)
+        }
+        return MyPromise.reject(this._rejectReason)
+      }
+      return MyPromise.reject(this._rejectReason)
+    }
   }
 
-  catch(onReject: (reason: any) => any): MyPromise<U> {
-
+  catch<U>(onReject: (reason: any) => U): MyPromise<U> {
+    if (typeof onReject === 'function') {
+      try {
+        const result = onReject(this._rejectReason)
+        return MyPromise.resolve(result)
+      } catch (e) {
+        return MyPromise.reject(e)
+      }
+    }
+    return MyPromise.resolve<any>()
   }
 
   private _resolve(value: T) {
