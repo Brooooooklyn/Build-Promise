@@ -18,6 +18,8 @@
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "nodemon": "^1.10.0",
+    "sinon": "^1.17.5",
+    "sinon-chai": "^2.8.0",
     "ts-node": "^1.2.1",
     "tslint": "^3.14.0",
     "typescript": "^1.8.10",

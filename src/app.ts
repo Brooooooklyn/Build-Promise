@@ -50,7 +50,7 @@ export class MyPromise <T> {
         try {
           const result = onFulfill(this._value)
           return MyPromise.resolve(result)
-        }catch (e) {
+        } catch (e) {
           if (errorHandler) {
             errorHandler(e)
           }
