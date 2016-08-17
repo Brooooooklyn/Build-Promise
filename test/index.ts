@@ -1,10 +1,7 @@
 import * as chai from 'chai'
-import * as sinon from 'sinon'
-import * as SinonChai from 'sinon-chai'
 import { MyPromise } from '../src/app'
 
 const expect = chai.expect
-chai.use(SinonChai)
 
 export default describe('Promise A+ spec', () => {
   it('new promise should ok', () => {
@@ -93,7 +90,7 @@ export default describe('Promise A+ spec', () => {
 
     const promise = MyPromise.resolve(2)
     promise.then(v => result.push(v))
-    
+
     setTimeout(() => {
       result.push(3)
       expect(result).to.deep.equal([1, 2, 3])
@@ -105,42 +102,36 @@ export default describe('Promise A+ spec', () => {
     const result = []
     result.push(1)
 
-    const promise = MyPromise.reject(2)
+    const promise = MyPromise.reject(3)
     promise.catch(r => result.push(r))
 
+    result.push(2)
     setTimeout(() => {
-      result.push(3)
       expect(result).to.deep.equal([1, 2, 3])
       done()
     })
   })
 
-  it('promise status can only change once, reject should not be called after resolve', done => {
-    let spy: Sinon.SinonSpy
+  it('promise status can only change once, reject should not be called after resolve', () => {
     const promise = new MyPromise((resolve, reject) => {
       resolve(1)
-      spy = sinon.spy(reject)
       reject(new Error('not happy'))
     })
 
     expect(promise.status).to.equal(1)
-    expect(spy).to.not.be.called
   })
 
-  it('promise status can only change once, resolve should not be called after reject', done => {
-    let spy: Sinon.SinonSpy
+  it('promise status can only change once, resolve should not be called after reject', () => {
     const promise = new MyPromise((resolve, reject) => {
-      spy = sinon.spy(resolve)
       reject(new Error('not happy'))
       resolve(1)
     })
 
     expect(promise.status).to.equal(2)
-    expect(spy).to.not.be.called
   })
 
   it('return promise in then should ok', done => {
-    const promise = Promise.resolve(1)
+    const promise = MyPromise.resolve(1)
 
     promise.then(r => {
       return new MyPromise(resolve => {
@@ -150,11 +141,12 @@ export default describe('Promise A+ spec', () => {
       })
     }).then(r => {
       expect(r).to.equal(3)
+      done()
     })
   })
 
   it('return thenable in then should ok', done => {
-    const promise = Promise.resolve(1)
+    const promise = MyPromise.resolve(1)
     const thenable = {
       then: (resolver: (val: any) => any) => {
         return resolver(2)
@@ -170,7 +162,7 @@ export default describe('Promise A+ spec', () => {
   })
 
   it('return promise in catch should ok', done => {
-    const promise = Promise.resolve(1)
+    const promise = MyPromise.resolve(1)
 
     promise.then(r => {
       return new MyPromise(resolve => {
@@ -185,7 +177,7 @@ export default describe('Promise A+ spec', () => {
   })
 
   it('return thenable in catch should ok', done => {
-    const promise = Promise.reject(1)
+    const promise = MyPromise.reject(1)
 
     const thenable = {
       then: (resolver: (val: any) => any) => {
