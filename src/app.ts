@@ -5,6 +5,13 @@ import 'tslib'
  * T 是范型，new 的时候指定，代表 Promise 将会 resolve 什么类型的值
  */
 
+export interface Thenable<T> {
+  then?: <U>(onFulfill?: (value?: T) => U, errorHandler?: (e: Error) => any) => any
+}
+
+// tslint:disable-next-line
+function noop () { }
+
 export class MyPromise <T> {
 
   public static resolve<U>(val?: U): MyPromise<U> {
@@ -28,6 +35,8 @@ export class MyPromise <T> {
 
   private _value: T
   private _rejectReason: any
+  private _nextResolver: () => void = noop
+  private _nextRejecter: () => void = noop
 
   /**
    * 这里回忆一下 Promise 是如何被 new 出来的
@@ -38,50 +47,68 @@ export class MyPromise <T> {
    */
   constructor(executor: (resolve: (value: T) => void, reject: (reason: any) => void) => any) {
     try {
-      executor(this._resolve.bind(this), this._reject.bind(this))
-    }catch (e) {
+      executor((value: T) => {
+        if (this.status !== 0) {
+          return
+        }
+        this._resolve(value)
+        this._nextResolver()
+      }, (reason: any) => {
+        if (this.status !== 0) {
+          return
+        }
+        this._reject(reason)
+        this._nextRejecter()
+      })
+    } catch (e) {
       this._reject(e)
     }
   }
 
   then<U>(onFulfill?: (value?: T) => U, errorHandler?: (e: Error) => any): MyPromise<U> {
-    if (this.status === 1) {
-      if (typeof onFulfill === 'function') {
-        try {
-          const result = onFulfill(this._value)
-          return MyPromise.resolve(result)
-        } catch (e) {
-          if (errorHandler) {
-            errorHandler(e)
+    return new MyPromise<U>((resolve, reject) => {
+      setTimeout(() => {
+        if (this.status === 0) {
+          this._nextResolver = () => {
+            this._tryOnFulfill(onFulfill, errorHandler, resolve, reject)
           }
-          return MyPromise.reject(e)
+        } else if (this.status === 1) {
+          if (typeof onFulfill === 'function') {
+            this._tryOnFulfill(onFulfill, errorHandler, resolve, reject)
+          } else {
+            resolve(void 0)
+          }
+        } else if (this.status === 2) {
+          if (typeof errorHandler === 'function') {
+            try {
+              const result = errorHandler(this._rejectReason)
+              resolve(result)
+            } catch (e) {
+              reject(e)
+            }
+          }
+          reject(this._rejectReason)
         }
-      } else {
-        return MyPromise.resolve<any>()
-      }
-    } else {
-      if (typeof errorHandler === 'function') {
-        try {
-          errorHandler(this._rejectReason)
-        } catch (e) {
-          return MyPromise.reject(e)
-        }
-        return MyPromise.reject(this._rejectReason)
-      }
-      return MyPromise.reject(this._rejectReason)
-    }
+      })
+    })
+
   }
 
   catch<U>(onReject: (reason: any) => U): MyPromise<U> {
-    if (typeof onReject === 'function') {
-      try {
-        const result = onReject(this._rejectReason)
-        return MyPromise.resolve(result)
-      } catch (e) {
-        return MyPromise.reject(e)
-      }
-    }
-    return MyPromise.resolve<any>()
+    return new MyPromise<U>((resolve, reject) => {
+      setTimeout(() => {
+        if (this.status === 0) {
+          this._nextRejecter = () => {
+            this._tryOnReject(onReject, resolve, reject)
+          }
+        } else {
+          if (typeof onReject === 'function') {
+            this._tryOnReject(onReject, resolve, reject)
+          }
+          resolve(void 0)
+        }
+      })
+    })
   }
 
   private _resolve(value: T) {
@@ -92,5 +119,55 @@ export class MyPromise <T> {
   private _reject(reason: any) {
     this._rejectReason = reason
     this.status = 2
+  }
+
+  private _isThenable (result: any) {
+    return result && typeof result.then === 'function'
+  }
+
+  private _tryOnFulfill<U>(
+    onFulfill: (value?: T) => U,
+    errorHandler: (e: Error) => any,
+    resolve: (value?: U) => void,
+    reject: (reason?: any) => void
+  ) {
+    try {
+      const result: Thenable<U> = onFulfill(this._value)
+      if (this._isThenable(result)) {
+        result.then(val => {
+          resolve(val)
+        }, reason => {
+          reject(reason)
+        })
+      } else {
+        resolve(<U>result)
+      }
+    } catch (e) {
+      if (errorHandler) {
+        errorHandler(e)
+      }
+      reject(e)
+    }
+  }
+
+  private _tryOnReject<U>(
+    onReject: (reason: any) => U,
+    resolve: (value?: U) => void,
+    reject: (reason?: any) => void
+  ) {
+    try {
+      const result: Thenable<U> = onReject(this._rejectReason)
+      if (this._isThenable(result)) {
+        result.then(val => {
+          resolve(val)
+        }, reason => {
+          reject(reason)
+        })
+      } else {
+        resolve(<U>result)
+      }
+    } catch (e) {
+      reject(e)
+    }
   }
 }

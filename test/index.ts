@@ -88,11 +88,11 @@ export default describe('Promise A+ spec', () => {
     const result = []
     result.push(1)
 
-    const promise = MyPromise.resolve(2)
+    const promise = MyPromise.resolve(3)
     promise.then(v => result.push(v))
 
+    result.push(2)
     setTimeout(() => {
-      result.push(3)
       expect(result).to.deep.equal([1, 2, 3])
       done()
     })
