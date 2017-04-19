@@ -28,6 +28,8 @@ export class MyPromise <T> {
 
   private _value: T
   private _rejectReason: any
+  private onResolvedCallback: any[]
+  private onRejectedCallback: any[]
 
   /**
    * 这里回忆一下 Promise 是如何被 new 出来的
@@ -37,6 +39,8 @@ export class MyPromise <T> {
    * 所以这里 executor 中的 resolve 与 reject 其实是从 Promise 的 constructor 里面传入的
    */
   constructor(executor: (resolve: (value: T) => void, reject: (reason: any) => void) => any) {
+    this.onResolvedCallback = []
+    this.onRejectedCallback = []
     try {
       executor(this._resolve.bind(this), this._reject.bind(this))
     }catch (e) {
@@ -44,21 +48,82 @@ export class MyPromise <T> {
     }
   }
 
-  then<U>(onFulfill?: Function, errorHandler?: (e: Error) => any): MyPromise<U> {
+  then<U>(onFulfill?: (value?: T) => any, errorHandler?: (e: Error) => any): MyPromise<U> {
+    onFulfill = onFulfill ? onFulfill : function (value: any) { return value }
+    errorHandler = errorHandler ? errorHandler : function (err: Error) { return err }
 
+    if (this.status === 0) {
+      this.onResolvedCallback.push(() => {
+        let x = onFulfill(this._value)
+        try {
+          return MyPromise.resolve(x)
+        } catch (e) {
+          return MyPromise.reject(e)
+        }
+      })
+      this.onRejectedCallback.push(() => {
+        let x = errorHandler(this._rejectReason)
+        try {
+          if (x instanceof MyPromise) {
+            x.then(MyPromise.resolve, MyPromise.reject)
+          }
+        } catch (e) {
+          return MyPromise.reject(x)
+        }
+      })
+    }
+    if (this.status === 1) {
+      let x = onFulfill(this._value)
+      try {
+        if (x instanceof MyPromise) {
+          x.then(MyPromise.resolve, MyPromise.reject)
+        }
+        return MyPromise.resolve(x)
+      } catch (e) {
+        return MyPromise.reject(e)
+      }
+    }
+    if (this.status === 2) {
+      let x = errorHandler(this._rejectReason)
+      try {
+        if (x instanceof MyPromise) {
+          x.then(MyPromise.resolve, MyPromise.reject)
+        }
+        return MyPromise.reject(x)
+      } catch (e) {
+        return MyPromise.reject(e)
+      }
+    }
   }
 
-  catch(onReject: (reason: any) => any): MyPromise<U> {
-
+   catch(onReject: (reason: any) => any): MyPromise<T> {
+     let x = onReject(this._rejectReason)
+      try {
+        if (x instanceof MyPromise) {
+          x.then(MyPromise.resolve, MyPromise.reject)
+        }
+      } catch (e) {
+        return MyPromise.reject(x)
+      }
   }
 
   private _resolve(value: T) {
-    this._value = value
-    this.status = 1
+      if (this.status === 0) {
+        this.status = 1
+        this._value = value
+        for (let i = 0; i < this.onResolvedCallback.length; i++) {
+          this.onResolvedCallback[i](value)
+        }
+      }
   }
 
   private _reject(reason: any) {
-    this._rejectReason = reason
-    this.status = 2
+      if (this.status === 0) {
+        this._rejectReason = reason
+        this.status = 2
+        for (let i = 0; i < this.onRejectedCallback.length; i++) {
+          this.onRejectedCallback[i](reason)
+        }
+      }
   }
 }
